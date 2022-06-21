@@ -17,7 +17,7 @@ export interface QueryScheme {
   /**
    * @description Should value to be converted to passed type
    */
-  parse?: ConvertTypes;
+  parse?: ConvertTypes | ((value: any) => any);
   /**
    * @description Can be skipped if value is undefined
    */
@@ -25,9 +25,19 @@ export interface QueryScheme {
   /**
    * @description Custom hook for additional validation
    */
-  onValidate?: (value: unknown) => boolean;
+  onValidate?: (value: any) => boolean;
   /**
    * @description Used as a key or hook for the injecting to result container
    */
-  containerKey?: ((value: unknown, key?: string, container?: any) => any) | string;
+  onInject?: ((value: any, key?: string, container?: any) => any) | string;
 }
+
+export interface Property {
+  onValidate(callback: (value: any) => boolean): Property;
+  parse(type: ConvertTypes | ((value: any) => any)): Property;
+  optional(): Property;
+  onInject(callback: ((value: any, key?: string, container?: any) => any) | string): Property;
+  extract(): QueryScheme;
+}
+
+export type QueryOptions = Property[];

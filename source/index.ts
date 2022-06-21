@@ -1,5 +1,3 @@
-import createMetadata from './utils/createMetadata';
-import createQuery from './utils/createQuery';
-
 export * from './types';
-export default { createQuery, createMetadata };
+export { default as property } from './utils/createProperty';
+export { default as createQuery } from './utils/createQuery';

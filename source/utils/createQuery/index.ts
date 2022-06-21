@@ -1,38 +1,40 @@
-import SearchException from '../../exceptions/searchException';
-import { ListNode, Query, QueryScheme } from '../../types';
+import { ListNode, Query, QueryOptions } from '../../types';
 import parseValue from './utils/parseValue';
 import validateQuery from './utils/validateQuery';
 import validateScheme from './utils/validateScheme';
 import validateValue from './utils/validateValue';
 
-const createQuery = (query: Query, scheme: QueryScheme[]): any => {
+const createQuery = (query: Query, scheme: QueryOptions): any => {
   let container: any = {};
 
   const validatedQuery = validateQuery(query);
-  if (!validatedQuery) return container;
+  if (!validatedQuery) {
+    throw new Error('prisma-query.invalid-query');
+  }
 
   const validatedScheme = validateScheme(scheme);
   if (!validatedScheme) {
-    throw new SearchException('prisma-query', 'invalid-scheme');
+    throw new Error('prisma-query.invalid-scheme');
   }
 
   const listContainer = new Map<string, ListNode[]>();
   for (const options of validatedScheme) {
+    const extractedOptions = options.extract();
     const node: ListNode = {
-      current: options,
+      current: extractedOptions,
     };
 
-    if (listContainer.has(options.key)) {
-      const list = listContainer.get(options.key) as ListNode[];
+    if (listContainer.has(extractedOptions.key)) {
+      const list = listContainer.get(extractedOptions.key) as ListNode[];
       const prevNode = list[list.length - 1];
 
       prevNode.next = node;
       node.prev = prevNode;
 
       list.push(node);
-      listContainer.set(options.key, list);
+      listContainer.set(extractedOptions.key, list);
     } else {
-      listContainer.set(options.key, [node]);
+      listContainer.set(extractedOptions.key, [node]);
     }
   }
 
@@ -48,7 +50,7 @@ const createQuery = (query: Query, scheme: QueryScheme[]): any => {
         }
       } else {
         if (!isValid) {
-          throw new SearchException(options.key, 'value-is-empty');
+          throw new Error(`${options.key}.value-is-empty`);
         }
       }
 
@@ -56,21 +58,25 @@ const createQuery = (query: Query, scheme: QueryScheme[]): any => {
         if (node.next || options.optional) {
           continue;
         } else {
-          throw new SearchException(options.key, 'failed-on-search');
+          throw new Error(`${options.key}.failed-on-validate`);
         }
       }
 
       let parsedValue: any = value;
       if (options.parse) {
-        parsedValue = parseValue(value, options.parse);
+        if (typeof options.parse === 'string') {
+          parsedValue = parseValue(value, options.parse);
+        } else {
+          parsedValue = options.parse(value);
+        }
       }
 
-      if (typeof options.containerKey !== 'function') {
-        container[options.containerKey || options.key] = parsedValue;
+      if (typeof options.onInject !== 'function') {
+        container[options.onInject || options.key] = parsedValue;
       } else {
         container = {
           ...container,
-          ...options.containerKey(parsedValue, options.key, container),
+          ...options.onInject(parsedValue, options.key, container),
         };
       }
 
