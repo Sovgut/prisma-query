@@ -1,0 +1,63 @@
+{
+  "name": "@sovgut/prisma-query",
+  "version": "1.0.0",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write \"source/**/*.ts\" \"source/**/*.js\"",
+    "lint": "tslint -p tsconfig.json",
+    "test": "jest --config jestconfig.json",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A source",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sovgut/prisma-query.git"
+  },
+  "keywords": [
+    "prisma",
+    "query",
+    "filtering",
+    "filter",
+    "validation",
+    "validate",
+    "valid",
+    "js",
+    "ts",
+    "typescript",
+    "javascript",
+    "nodejs",
+    "database",
+    "orm",
+    "utility",
+    "util",
+    "helper"
+  ],
+  "author": {
+    "name": "Sergey Sovgut",
+    "email": "dev.devua@outlook.com",
+    "url": "https://sovgut.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Sovgut/prisma-query/issues"
+  },
+  "homepage": "https://github.com/Sovgut/prisma-query#readme",
+  "devDependencies": {
+    "@types/jest": "^28.1.2",
+    "@types/node": "^17.0.41",
+    "jest": "^28.1.1",
+    "prettier": "^2.7.1",
+    "ts-jest": "^28.0.5",
+    "tslint": "^6.1.3",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^4.7.4"
+  },
+  "files": [
+    "build/**/*"
+  ]
+}
